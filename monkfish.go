@@ -26,6 +26,7 @@ type MonkConf struct {
 
 	domain         string
 	internalDomain string
+	lanIPPrefix    string
 }
 
 func (c *MonkConf) Parse(path string) error {
@@ -46,6 +47,12 @@ func (c *MonkConf) Parse(path string) error {
 
 	c.domain = config.Get("default.domain").(string)
 	c.internalDomain = config.Get("default.internal_domain").(string)
+	if config.Has("default.lan_ip_prefix") {
+		c.lanIPPrefix = config.Get("default.lan_ip_prefix").(string)
+	} else {
+		c.lanIPPrefix = ""
+	}
+
 	return nil
 }
 
@@ -130,7 +137,7 @@ func Run() error {
 				conf.domain,
 			)
 		}
-		if lan := findLanIP(i.Addresses); lan != "" {
+		if lan := findLanIP(i.Addresses, conf.lanIPPrefix); lan != "" {
 			fmt.Fprintf(
 				targetIo,
 				"%s\t\t%s.%s\n",
@@ -213,14 +220,20 @@ func findWanIP(m map[string]interface{}) string {
 	return ""
 }
 
-func findLanIP(m map[string]interface{}) string {
+func findLanIP(m map[string]interface{}, specificRange string) string {
 	for _, data := range m {
 		ports := data.([]interface{})
 		port := ports[0].(map[string]interface{})
 		ip := port["addr"].(string)
-		for _, prefix := range privateIPPrefix {
-			if strings.HasPrefix(ip, prefix) {
+		if specificRange != "" {
+			if strings.HasPrefix(ip, specificRange) {
 				return ip
+			}
+		} else {
+			for _, prefix := range privateIPPrefix {
+				if strings.HasPrefix(ip, prefix) {
+					return ip
+				}
 			}
 		}
 	}
