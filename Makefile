@@ -27,5 +27,5 @@ compress: all clean-zip
 
 release: compress
 	git push origin master
-	ghr -u tech $(VERSION) pkg
+	ghr $(VERSION) pkg
 	git fetch origin --tags
