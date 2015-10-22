@@ -121,20 +121,24 @@ func Run() error {
 		}
 		loggerf("name: %s\n", i.Name)
 
-		fmt.Fprintf(
-			targetIo,
-			"%s\t\t%s.%s\n",
-			findWanIP(i.Addresses),
-			i.Name,
-			conf.domain,
-		)
-		fmt.Fprintf(
-			targetIo,
-			"%s\t\t%s.%s\n",
-			findLanIP(i.Addresses),
-			i.Name,
-			conf.internalDomain,
-		)
+		if wan := findWanIP(i.Addresses); wan != "" {
+			fmt.Fprintf(
+				targetIo,
+				"%s\t\t%s.%s\n",
+				wan,
+				i.Name,
+				conf.domain,
+			)
+		}
+		if lan := findLanIP(i.Addresses); lan != "" {
+			fmt.Fprintf(
+				targetIo,
+				"%s\t\t%s.%s\n",
+				lan,
+				i.Name,
+				conf.internalDomain,
+			)
+		}
 	}
 
 	if commitsToFile {
