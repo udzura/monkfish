@@ -1,9 +1,12 @@
 VERSION := $(shell go run cmd/monkfish/monkfish.go -version | sed 's/Version: //')
 CMDDIR  := ./cmd/monkfish
-.PHONY: test setup clean-zip all compress release
+.PHONY: install test setup clean-zip all compress release
 
 monkfish: test
 	go build $(CMDDIR)
+
+install: monkfish
+	install monkfish /usr/local/bin
 
 test:
 	go test ./...
