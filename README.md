@@ -92,6 +92,10 @@ name: worker003
 
 Original idea is from the implementation of @lamanotrama's Perl script.
 
+## License
+
+[MIT](./LICENSE).
+
 ## Roadmap
 
 * Automated update via `consul watch`
