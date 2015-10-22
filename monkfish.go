@@ -15,8 +15,6 @@ import (
 	"github.com/rackspace/gophercloud/openstack/compute/v2/servers"
 )
 
-const Version = "0.0.1"
-
 type MonkConf struct {
 	username   string
 	password   string
