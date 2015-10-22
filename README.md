@@ -11,6 +11,10 @@ $ go get github.com/udzura/monkfish/cmd/monkfish
 $ make install
 ```
 
+### Linux amd64 binary is
+
+* Here: https://github.com/udzura/monkfish/releases/latest
+
 ## Usage
 
 ```
