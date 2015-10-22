@@ -45,7 +45,7 @@ os_auth_url = "https://your.keystone.host:9999/v2.0"
 os_region = "RegionOne"
 domain = "monk.example.tld"
 internal_domain = "monk.local"
-lan_ip_prefix = "10.10.100."
+lan_ip_prefix = "10.10.100." # Optional
 ```
 
 Then set crontab:
