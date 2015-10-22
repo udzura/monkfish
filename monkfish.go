@@ -196,10 +196,14 @@ func findWanIP(m map[string]interface{}) string {
 		ports := data.([]interface{})
 		port := ports[0].(map[string]interface{})
 		ip := port["addr"].(string)
+		isPrivate := false
 		for _, prefix := range privateIPPrefix {
-			if !strings.HasPrefix(ip, prefix) {
-				return ip
+			if strings.HasPrefix(ip, prefix) {
+				isPrivate = true
 			}
+		}
+		if !isPrivate {
+			return ip
 		}
 	}
 	return ""
