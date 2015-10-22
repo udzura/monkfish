@@ -88,6 +88,10 @@ name: worker003
 ...
 ```
 
+## Special Thanks
+
+Original idea is from the implementation of @lamanotrama's Perl script.
+
 ## Roadmap
 
 * Automated update via `consul watch`
