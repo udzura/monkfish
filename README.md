@@ -1,5 +1,7 @@
 # monkfish
 
+[![monkfish](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/FMIB_46047_Monkfish.jpeg/800px-FMIB_46047_Monkfish.jpeg)](https://commons.wikimedia.org/wiki/File:FMIB_46047_Monkfish.jpeg)
+
 Generate the Hosts Dynamically on OpenStack servers
 
 ## How to install
