@@ -63,7 +63,7 @@ Then set crontab:
 [Pro tips] When you want to avoid thundering herd:
 
 ```crontab
-*/3 * * * * bash -c 'sleep $(($RANDOM \% 60)) && /usr/local/bin/moknfish -w'
+*/3 * * * * /usr/local/bin/moknfish -random-delay 60'
 ```
 
 After this the `/etc/hosts` will be periodicaly updated from `/etc/hosts.base` and existing server networks.
