@@ -22,9 +22,10 @@ type MonkConf struct {
 	authUrl    string
 	region     string
 
-	domain         string
-	internalDomain string
-	lanIPPrefix    string
+	domain          string
+	internalDomain  string
+	lanIPPrefix     string
+	useOnlyHostname bool
 }
 
 func (c *MonkConf) Parse(path string) error {
@@ -49,6 +50,11 @@ func (c *MonkConf) Parse(path string) error {
 		c.lanIPPrefix = config.Get("default.lan_ip_prefix").(string)
 	} else {
 		c.lanIPPrefix = ""
+	}
+	if config.Has("default.use_only_hostname") {
+		c.useOnlyHostname = config.Get("default.use_only_hostname").(bool)
+	} else {
+		c.useOnlyHostname = false
 	}
 
 	return nil
@@ -125,13 +131,19 @@ func Run() error {
 			continue
 		}
 		loggerf("name: %s\n", i.Name)
+		var name string
+		if conf.useOnlyHostname {
+			name = strings.Split(i.Name, ".")[0]
+		} else {
+			name = i.Name
+		}
 
 		if wan := findWanIP(i.Addresses); wan != "" {
 			fmt.Fprintf(
 				targetIo,
 				"%s\t\t%s.%s\n",
 				wan,
-				i.Name,
+				name,
 				conf.domain,
 			)
 		}
@@ -140,7 +152,7 @@ func Run() error {
 				targetIo,
 				"%s\t\t%s.%s\n",
 				lan,
-				i.Name,
+				name,
 				conf.internalDomain,
 			)
 		}
