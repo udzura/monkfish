@@ -25,6 +25,8 @@ Usage of monkfish:
   -V    Verbose mode
   -c string
         Config path (default "/etc/monkfish.ini")
+  -random-delay int
+        Random delay before to access OpenStack API, in second
   -t string
         Target file to write hosts (default "/etc/hosts")
   -version
@@ -48,6 +50,7 @@ os_region = "RegionOne"
 domain = "monk.example.tld"
 internal_domain = "monk.local"
 lan_ip_prefix = "10.10.100." # Optional
+use_only_hostname = true     # Optional, when you want instances named like `foo001.example.tld` to be `foo001.your.lan`
 ```
 
 Then set crontab:
@@ -60,7 +63,7 @@ Then set crontab:
 [Pro tips] When you want to avoid thundering herd:
 
 ```crontab
-*/3 * * * * bash -c 'sleep $(($RANDOM \% 60)) && /usr/local/bin/moknfish -w'
+*/3 * * * * /usr/local/bin/moknfish -random-delay 60'
 ```
 
 After this the `/etc/hosts` will be periodicaly updated from `/etc/hosts.base` and existing server networks.

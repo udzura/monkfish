@@ -3,10 +3,13 @@ package monkfish
 import (
 	"flag"
 	"fmt"
+	hash "hash/adler32"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/pelletier/go-toml"
 
@@ -22,9 +25,10 @@ type MonkConf struct {
 	authUrl    string
 	region     string
 
-	domain         string
-	internalDomain string
-	lanIPPrefix    string
+	domain          string
+	internalDomain  string
+	lanIPPrefix     string
+	useOnlyHostname bool
 }
 
 func (c *MonkConf) Parse(path string) error {
@@ -50,6 +54,11 @@ func (c *MonkConf) Parse(path string) error {
 	} else {
 		c.lanIPPrefix = ""
 	}
+	if config.Has("default.use_only_hostname") {
+		c.useOnlyHostname = config.Get("default.use_only_hostname").(bool)
+	} else {
+		c.useOnlyHostname = false
+	}
 
 	return nil
 }
@@ -60,12 +69,14 @@ func Run() error {
 	var target string
 	var verbose bool
 	var showsVersion bool
+	var randomDelay int
 
 	flag.BoolVar(&commitsToFile, "w", false, "Write to file")
 	flag.StringVar(&target, "t", "/etc/hosts", "Target file to write hosts")
 	flag.BoolVar(&verbose, "V", false, "Verbose mode")
 	flag.StringVar(&configPath, "c", "/etc/monkfish.ini", "Config path")
 	flag.BoolVar(&showsVersion, "version", false, "Just show version and quit")
+	flag.IntVar(&randomDelay, "random-delay", 0, "Random delay before to access OpenStack API, in second")
 	flag.Parse()
 
 	if showsVersion {
@@ -77,6 +88,15 @@ func Run() error {
 	conf := &MonkConf{}
 	if err := conf.Parse(configPath); err != nil {
 		return err
+	}
+
+	if randomDelay > 0 {
+		hostname, _ := os.Hostname()
+		ha := hash.Checksum([]byte(hostname))
+		rand.Seed(time.Now().UnixNano() + int64(ha))
+		delay := rand.Intn(randomDelay)
+		loggerf("Sleeping in %d seconds...", delay)
+		time.Sleep(time.Duration(delay) * time.Second)
 	}
 
 	auth, err := openstack.AuthenticatedClient(gophercloud.AuthOptions{
@@ -125,13 +145,19 @@ func Run() error {
 			continue
 		}
 		loggerf("name: %s\n", i.Name)
+		var name string
+		if conf.useOnlyHostname {
+			name = strings.Split(i.Name, ".")[0]
+		} else {
+			name = i.Name
+		}
 
 		if wan := findWanIP(i.Addresses); wan != "" {
 			fmt.Fprintf(
 				targetIo,
 				"%s\t\t%s.%s\n",
 				wan,
-				i.Name,
+				name,
 				conf.domain,
 			)
 		}
@@ -140,7 +166,7 @@ func Run() error {
 				targetIo,
 				"%s\t\t%s.%s\n",
 				lan,
-				i.Name,
+				name,
 				conf.internalDomain,
 			)
 		}
