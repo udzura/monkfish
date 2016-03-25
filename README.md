@@ -60,6 +60,12 @@ Then set crontab:
 */3 * * * * root /usr/local/bin/moknfish -w
 ```
 
+[Pro tips] When you want to avoid thundering herd:
+
+```crontab
+*/3 * * * * bash -c 'sleep $(($RANDOM \% 60)) && /usr/local/bin/moknfish -w'
+```
+
 After this the `/etc/hosts` will be periodicaly updated from `/etc/hosts.base` and existing server networks.
 
 ```
